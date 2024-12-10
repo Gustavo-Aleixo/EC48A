@@ -1,6 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class Sequencial {
 
   private int[][] graph;
@@ -29,7 +26,6 @@ public class Sequencial {
 
   private void backtrack(int currentCost, int currentNode, int depth, boolean[] visited) {
     if (depth == n) {
-      // Retorna à cidade inicial
       currentCost += graph[currentNode][0];
       minPathCost = Math.min(minPathCost, currentCost);
       return;

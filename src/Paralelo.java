@@ -3,6 +3,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Paralelo {
+
   private int[][] graph;
   private int n;
   private AtomicInteger minPathCost;
@@ -17,16 +18,16 @@ public class Paralelo {
 
   public void solve() {
     long startTime = System.nanoTime();
-
     ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
 
     for (int i = 1; i < n; i++) {
       final int startNode = i;
+
       executor.submit(() -> {
         boolean[] visited = new boolean[n];
         visited[0] = true;
         visited[startNode] = true;
-        backtrack(0, startNode, 1, visited);
+        backtrack(graph[0][startNode], startNode, 2, visited);
       });
     }
 
@@ -45,7 +46,8 @@ public class Paralelo {
   }
 
   private void backtrack(int currentCost, int currentNode, int depth, boolean[] visited) {
-    if (depth == n - 1) {
+
+    if (depth == n) {
       currentCost += graph[currentNode][0];
       updateMinPathCost(currentCost);
       return;

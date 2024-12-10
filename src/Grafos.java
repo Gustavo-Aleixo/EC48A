@@ -21,15 +21,14 @@ public class Grafos {
 
   public static int[][] getGrafo(int level) {
     switch (level) {
-      case 1: // FACIL
+      case 1: // FÁCIL
         return generateRandomGraph(11, 20, 50);
-      case 2: // MEDIO
+      case 2: // MÉDIO
         return generateRandomGraph(12, 30, 100);
-      case 3: // DIFICIL
+      case 3: // DIFÍCIL
         return generateRandomGraph(13, 50, 150);
       default:
-        throw new IllegalArgumentException(
-            "Nível inválido! Por favor, escolha entre 1 (fácil), 2 (médio) ou 3 (difícil).");
+        throw new IllegalArgumentException("Nível inválido! Escolha entre 1, 2 ou 3.");
     }
   }
 }
