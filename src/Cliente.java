@@ -5,75 +5,48 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cliente {
-
   private String host;
   private int port;
-  private int numberOfThreads;
+  private int startNode;
+  private int[][] graph;
 
-  public Cliente(String host, int port, int numberOfThreads) {
+  public Cliente(String host, int port, int startNode) {
     this.host = host;
     this.port = port;
-    this.numberOfThreads = numberOfThreads;
+    this.startNode = startNode;
   }
 
   public void start() {
-    long startTime = System.nanoTime();
-
     try (Socket socket = new Socket(host, port);
         ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
         ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
-      int[][] graph = (int[][]) in.readObject();
-      int result = calculateShortestPathParallel(graph);
+      graph = (int[][]) in.readObject();
+      int result = calculateShortestPathFromNode(graph, startNode);
       out.writeInt(result);
       out.flush();
-
-      long endTime = System.nanoTime();
-      double elapsedTime = (endTime - startTime) / 1_000_000_000.0;
-      System.out.println("Resultado enviado ao servidor: " + result);
-      System.out.printf("Tempo de processamento (cliente): %.2f segundos\n", elapsedTime);
-      System.out.printf("===================================================\n\n");
-
     } catch (IOException | ClassNotFoundException e) {
       e.printStackTrace();
     }
   }
 
-  private int calculateShortestPathParallel(int[][] graph) {
+  private int calculateShortestPathFromNode(int[][] graph, int startNode) {
     AtomicInteger minPathCost = new AtomicInteger(Integer.MAX_VALUE);
-    int n = graph.length;
-
-    ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-
-    for (int i = 1; i < n; i++) {
-      final int startNode = i;
-      executor.submit(() -> {
-        boolean[] visited = new boolean[n];
-        visited[0] = true;
-        visited[startNode] = true;
-        backtrack(graph, graph[0][startNode], startNode, 2, minPathCost, visited);
-      });
-    }
-
-    executor.shutdown();
-    try {
-      executor.awaitTermination(Long.MAX_VALUE, java.util.concurrent.TimeUnit.NANOSECONDS);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
+    boolean[] visited = new boolean[graph.length];
+    visited[0] = true;
+    visited[startNode] = true;
+    backtrack(graph, graph[0][startNode], startNode, 2, minPathCost, visited);
     return minPathCost.get();
   }
 
-  private void backtrack(int[][] graph, int currentCost, int currentNode, int depth,AtomicInteger minPathCost, boolean[] visited) {
-
+  private void backtrack(int[][] graph, int currentCost, int currentNode, int depth, AtomicInteger minPathCost,
+      boolean[] visited) {
     int n = graph.length;
     if (depth == n) {
       currentCost += graph[currentNode][0];
       updateMinPathCost(currentCost, minPathCost);
       return;
     }
-
     for (int nextNode = 1; nextNode < n; nextNode++) {
       if (!visited[nextNode]) {
         visited[nextNode] = true;
