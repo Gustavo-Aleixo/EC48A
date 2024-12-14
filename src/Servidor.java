@@ -11,9 +11,11 @@ public class Servidor {
   private ConcurrentLinkedQueue<Integer> resultsQueue = new ConcurrentLinkedQueue<>();
   private volatile boolean running = true;
   private ServerSocket serverSocket;
+  private int threads;
 
-  public Servidor(int[][] graph) {
+  public Servidor(int[][] graph, int threads) {
     this.graph = graph;
+    this.threads = threads;
   }
 
   public void start(CountDownLatch latch) {
@@ -49,7 +51,7 @@ public class Servidor {
         int clientResult = in.readInt();
         resultsQueue.add(clientResult);
 
-        if (resultsQueue.size() == Runtime.getRuntime().availableProcessors() - 1) {
+        if (resultsQueue.size() == threads - 1) {
           combineResults(startTime, latch);
         }
       } catch (IOException e) {

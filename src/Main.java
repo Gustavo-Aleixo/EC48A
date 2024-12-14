@@ -110,7 +110,7 @@ public class Main {
     CountDownLatch latch = new CountDownLatch(1);
 
     new Thread(() -> {
-      Servidor servidor = new Servidor(graph);
+      Servidor servidor = new Servidor(graph, threads);
       servidor.start(latch);
     }).start();
 
